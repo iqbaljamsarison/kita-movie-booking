@@ -1,6 +1,6 @@
 // K.I.T.A Movie Booking v2 — GitHub Pages + Supabase
-const SUPABASE_URL = 'PASTE_YOUR_SUPABASE_PROJECT_URL';
-const SUPABASE_ANON_KEY = 'PASTE_YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://veijexflgbonubokfbwf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_-VB4AhO-w5QzPAA_r1UTCA_lUf57u-e';
 const ready = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('PASTE_') && !SUPABASE_ANON_KEY.includes('PASTE_');
 const db = ready ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
 const $ = id => document.getElementById(id);
