@@ -1,89 +1,71 @@
-# K.I.T.A Movie Booking — SK Seri Mendapat
+# K.I.T.A Movie Booking v2 — SK Seri Mendapat
 
-A responsive booking-site starter for Karnival K.I.T.A Generasi Madani. Frontend hosting: GitHub Pages. Database and authentication: Supabase.
+Versi ini mengubah aliran kepada **free seating** dan **penetapan hall oleh admin**.
 
-## Included in this starter
+## Fungsi v2
+- Murid pilih kelas dan nama daripada senarai pramuat; tidak menaip nama sendiri.
+- Murid pilih tarikh, sesi dan filem yang telah ditetapkan oleh admin.
+- Admin menetapkan filem + Hall A/B bagi setiap sesi.
+- Kapasiti: Hall A = 40, Hall B = 35. Sistem menutup tempahan apabila penuh.
+- Tiada pemilihan nombor kerusi atau rekod nombor kerusi. Murid memilih tempat duduk fizikal sendiri apabila masuk ke hall.
+- Seorang murid hanya boleh menempah satu filem bagi satu sesi. Sesi lain boleh ditempah secara berasingan.
+- Admin melihat senarai tempahan dan menandakan bayaran sebagai dibayar.
+- Harga tiket RM1; Pakej Adik RM3; Pakej Abang RM5.
 
-- Public landing page with the supplied event poster.
-- Five movie choices and the six screening slots from the event poster, including the corrected Monday/Tuesday Session 2 start time of 12:30 PM.
-- Hall selection: Hall A (40 seats) or Hall B (35 seats).
-- Numbered seat selection and live availability when Supabase is configured.
-- Ticket pricing RM1 per seat; Pakej Adik RM3 and Pakej Abang RM5 per seat.
-- Cash-at-counter payment status (new bookings are unpaid).
-- Booking reference and QR ticket.
-- Admin sign-in, booking list, mark-paid and check-in actions.
-- Database-side atomic booking function and unique seat constraint to prevent duplicate seat bookings.
+## Penting: privasi senarai murid
+Untuk membolehkan dropdown nama berfungsi tanpa log masuk murid, fungsi kelas/nama dalam SQL ini boleh dicapai oleh pelawat laman. Ini mendedahkan senarai nama murid. **Jangan lancarkan pautan awam sebelum sekolah meluluskan kaedah akses.** Untuk penggunaan sebenar, disyorkan tambah PIN individu / kod akses sekolah atau hadkan tempahan melalui peranti/akaun yang dikawal sekolah. Jangan masukkan nombor IC, alamat atau data sensitif.
 
-## 1. Create Supabase project
+## A. Supabase
+1. Buka Supabase project yang digunakan oleh laman.
+2. SQL Editor → jalankan `supabase/schema-v2.sql`.
+3. Table Editor → jadual `students` → Import data from CSV → pilih `supabase/students-import.csv`.
+4. Pastikan pemetaan lajur ialah `student_name` dan `class_name`. CSV mengandungi 98 nama daripada fail senarai murid yang dibekalkan.
+5. Authentication → Users: cipta akaun admin.
+6. Salin UUID admin dan jalankan:
+   ```sql
+   insert into public.admins(user_id, display_name)
+   values ('UUID-ADMIN', 'Admin K.I.T.A');
+   ```
+7. Dalam `assets/js/app.js`, masukkan Project URL dan anon/public key. **Jangan sekali-kali letak service_role key dalam laman web.**
 
-1. Create a project at https://supabase.com/.
-2. Open **SQL Editor** in the Supabase dashboard.
-3. Paste and run `supabase/schema.sql`.
-4. In **Project Settings → API**, copy the Project URL and anon/public key.
-5. Open `assets/js/app.js` and replace:
-   - `PASTE_YOUR_SUPABASE_PROJECT_URL`
-   - `PASTE_YOUR_SUPABASE_ANON_KEY`
-6. Do not put a `service_role` key in this website. The anon key is designed for browser use; Row Level Security and database functions enforce access.
+## B. Tetapkan filem dan hall
+1. Log masuk ke butang Admin di laman.
+2. Pilih sesi, filem dan hall.
+3. Simpan tetapan.
+4. Ulang untuk setiap filem/hall/sesi yang hendak dibuka.
+5. Dalam satu sesi, Hall A dan Hall B boleh menayangkan dua filem berlainan. Satu hall hanya boleh mempunyai satu filem bagi satu sesi.
+6. Jika hall sudah mempunyai tempahan, sistem menghalang pertukaran filem/hall supaya rekod tempahan tidak tersalah kait.
 
-## 2. Create the first admin
+Kapasiti automatik ditetapkan: Hall A 40, Hall B 35. Jangan ubah kapasiti melalui UI.
 
-1. In Supabase **Authentication → Users**, add an admin user with an email and a strong password.
-2. Copy that user's UUID.
-3. In SQL Editor, run the following, replacing the UUID and display name:
+## C. Terbitkan di GitHub Pages
+Muat naik **kandungan folder ini** ke root repository (pastikan `index.html` di root). Jika repo sedia ada menggunakan fail lama, gantikan `index.html`, `assets/js/app.js`, tambah `supabase/schema-v2.sql` dan `supabase/students-import.csv`; kekalkan `assets/css/style.css` dan poster dalam `assets/images/`.
 
-```sql
-insert into public.admins(user_id, display_name)
-values ('PASTE-AUTH-USER-UUID-HERE', 'Admin K.I.T.A');
-```
+## D. Aliran murid
+Pilih kelas → pilih nama → pilih tarikh → pilih sesi → pilih filem yang tersedia → pilih pakej makanan (pilihan) → hantar. Tiket QR dan nombor rujukan dipaparkan. Tiada nombor kerusi diberikan.
 
-Only user IDs in `public.admins` can view the admin booking list, mark payments, and check in bookings. Do not share the admin password.
+## E. Ujian sebelum dibuka
+- Uji satu tempahan untuk setiap hall.
+- Uji tempahan murid sama pada dua filem dalam sesi sama (mesti ditolak).
+- Uji tempahan murid sama dalam sesi berlainan (mesti dibenarkan).
+- Uji had 40 untuk Hall A dan 35 untuk Hall B.
+- Uji admin mark paid.
+- Uji pada telefon dan komputer.
 
-## 3. Publish using GitHub Pages
+## Jadual sedia ada
+- 20 Nov 2026: Sesi 1 08:00–10:00; Sesi 2 10:30–12:00.
+- 23 Nov 2026: Sesi 1 10:30–12:30; Sesi 2 12:30–13:30.
+- 24 Nov 2026: Sesi 1 10:30–12:30; Sesi 2 12:30–13:30.
 
-1. Create a GitHub repository named `kita-movie-booking`.
-2. Upload the contents of this folder to the repository root (make sure `index.html` is at the root).
-3. In **Settings → Pages**, select **Deploy from a branch**, choose `main` and `/ (root)`, then Save.
-4. Wait for GitHub Pages to publish. The expected address format is `https://YOUR-GITHUB-USERNAME.github.io/kita-movie-booking/`.
-5. Open the site on a phone and computer and submit a test booking before sharing it with users.
-
-## 4. Event configuration
-
-The starter has these six sessions preloaded by the SQL script:
-
-| Date | Session | Time |
-|---|---|---|
-| 20 Nov 2026 | 1 | 8:00–10:00 AM |
-| 20 Nov 2026 | 2 | 10:30 AM–12:00 PM |
-| 23 Nov 2026 | 1 | 10:30 AM–12:30 PM |
-| 23 Nov 2026 | 2 | 12:30–1:30 PM |
-| 24 Nov 2026 | 1 | 10:30 AM–12:30 PM |
-| 24 Nov 2026 | 2 | 12:30–1:30 PM |
-
-Each session can be booked in either hall. Seat numbers are A01–A40 and B01–B35. The booking form currently makes one booking with one food-package choice applied per ticket in that booking. For a group requiring mixed food packages, make separate bookings by package type.
-
-All five movies are initially selectable for all six sessions. Confirm this arrangement with the event committee; the current poster does not specify which movie is assigned to each session.
-
-## 5. Important operational notes
-
-- A booking is recorded immediately and its selected seats are reserved. Payment remains **unpaid** until an admin marks it paid.
-- Cancelled bookings are not exposed in the public availability view. A cancellation workflow is not included in this starter; do not manually delete rows while a user is booking.
-- The QR code identifies the booking. Admin check-in is currently performed from the dashboard booking list; QR-camera scanning is a planned enhancement, not included in this initial build.
-- Test the booking flow with dummy data first. Confirm the hall layout, session schedule, movie-to-session allocation, and payment workflow before opening bookings to students.
-- Do not store sensitive student information that is not needed for the event. Restrict admin access to authorised teachers.
-
-## Project structure
-
+## Struktur
 ```text
-kita-movie-booking/
+kita-movie-booking-v2/
 ├── index.html
 ├── README.md
-├── assets/
-│   ├── css/style.css
-│   ├── js/app.js
-│   └── images/poster-karnival-kita.jpeg
-└── supabase/schema.sql
+├── assets/css/style.css
+├── assets/js/app.js
+├── assets/images/poster-karnival-kita.jpeg
+└── supabase/
+    ├── schema-v2.sql
+    └── students-import.csv
 ```
-
-## Current scope
-
-This is a deployable starter, not a connected live booking service yet. It becomes live only after a Supabase project is created, the SQL is run, the browser configuration is added, an admin is created, and GitHub Pages is published. The initial build provides booking, seat locking, QR ticket generation, admin payment marking and manual check-in. Payment gateway, camera-based QR scanning, downloadable reports, cancellation/refund workflow and admin movie/session editing are not included yet.
